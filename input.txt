@@ -1,0 +1,10 @@
+please summarize the following into bullet points:
+```
+Offering a brief update on the future of hard drives, Seagate has shared some fresh insights concerning launch of its next generation hard drives featuring its heat-assisted magnetic recording (HAMR) technology. The company's initial commercial HAMR hard drive is set to offer a 32 TB capacity, presumably in the third quarter of 2023, but the new recording technology will enable a relatively quick capacity increase to 40 TB. Meanwhile, high-capacity HAMR HDDs will co-exist with yet-to-be-released 24 TB and 28 TB drives.
+
+The initial 32 TB HAMR-based HDDs from Seagate will rely on the company's 10-platter platform that is akin to that already in use by the company and which has predictable yields and which eliminates one potential point of failure. Given that the company will have to use new media and new write heads with its HAMR hard drives, it is a reasonable move to keep re-using as many proven parts as possible. That 10-platter HAMR platform will be used for 36TB, 40TB, and even higher-capacity HDDs going forward, presumably with as few changes as possible.
+
+"When you go to HAMR, our 32TB is based on 10 disks and 20 heads," said Gianluca Romano, Seagate's chief financial officer, at the Bank of America 2023 Global Technology Conference (via SeekingAlpha). "The following product will be a 36TB and will still be based on 10 disks and 20 heads. So, all the increase is coming through areal density. The following one, 40TB, still the same 10 disks and 20 heads. Also, the 50TB, we said at our earnings release, in our lab, we are already running individual disk at 5TB."
+
+```
+
