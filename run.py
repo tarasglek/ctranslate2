@@ -17,7 +17,7 @@ prompt = sys.stdin.read()
 prompt_tokens = tokenizer.convert_ids_to_tokens(tokenizer.encode(prompt))
 #  https://github.com/OpenNMT/CTranslate2/issues/1127#issuecomment-1514401355
 print(prompt, end ="", flush=True)
-if True:
+while True:
     start = time.time()
     num_tokens = 0
 
@@ -33,7 +33,7 @@ if True:
 
     end = time.time()
     print(f"\nTokens per second:{num_tokens / (end - start)} {end-start}s", file=sys.stderr)
-else:
+if False:
     results = generator.generate_batch([prompt_tokens], max_length=700, sampling_topk=10)
 
     text = tokenizer.decode(results[0].sequences_ids[0])
