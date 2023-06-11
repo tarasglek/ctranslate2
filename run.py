@@ -1,7 +1,7 @@
 import ctranslate2
 import transformers
 
-generator = ctranslate2.Generator("limcheekin/mpt-7b-storywriter-ct2")
+generator = ctranslate2.Generator("mpt-7b-storywriter-ct2")
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
 prompt = "Long long time ago, "
