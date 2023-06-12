@@ -34,6 +34,7 @@ while True:
             # sampling_temperature=0.8,
             sampling_topk=10,
             max_length=700,
+            n=3,
         )
     for result in results:
         print(tokenizer.decode(result.token_id), end ="", flush=True)
