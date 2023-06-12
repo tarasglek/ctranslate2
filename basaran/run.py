@@ -1,5 +1,6 @@
 import torch
 import sys
+import time
 torch.set_num_threads(1)
 from basaran.model import load_model
 # model = 'gpt2'
@@ -11,12 +12,15 @@ streaming_model = load_model(model,  trust_remote_code=True, load_in_8bit=load_i
 
 print(f"Memory footprint of {model}: {streaming_model.model.get_memory_footprint()}")
 
-
+start = time.time()
+num_tokens = 0
 for choice in streaming_model(sys.stdin.read(), max_tokens=1000, echo=True):
     print(choice['text'], flush=True, end='')
+    num_tokens += 1
     if (choice['finish_reason']):
         print(f"\n finish reason:{choice['finish_reason']}", flush=True)
-
+end = time.time()
+print(f"\nTokens per second:{num_tokens / (end - start)} {end-start}s", file=sys.stderr)
 # numactl --physcpubind=0-3 
 
 # taskset -c 0-4 python run.py

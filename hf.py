@@ -27,11 +27,6 @@ name = 'mosaicml/mpt-7b-storywriter'
 config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True, load_in_8bit=True)
 config.max_seq_len = 83968 # (input + output) tokens can now be up to 83968
 
-# Initlaize an empty model
-with init_empty_weights():
-  empty_model = transformers.AutoModelForCausalLM.from_config(config)
-empty_model.tie_weights()
-
 model = transformers.AutoModelForCausalLM.from_pretrained(
   name,
   config=config,
@@ -39,13 +34,11 @@ model = transformers.AutoModelForCausalLM.from_pretrained(
   load_in_8bit=True,
   device_map="auto",
 )
-print("Loaded model")
-model.tie_weights()
 print(f"Memory footprint of {name}: {model.get_memory_footprint()}")
 
 
 # generate text until the output length (which includes the context length) reaches 50
-greedy_output = model.generate(**prompt_tokens, max_length=prompt_token_count+20)
+greedy_output = model.generate(**prompt_tokens, max_length=prompt_token_count+61)
 
 print("Output:\n" + 100 * '-')
 print(tokenizer.decode(greedy_output[0], skip_special_tokens=True))

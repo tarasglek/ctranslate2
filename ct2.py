@@ -34,14 +34,13 @@ while True:
             # sampling_temperature=0.8,
             sampling_topk=10,
             max_length=700,
-            n=3,
         )
     for result in results:
         print(tokenizer.decode(result.token_id), end ="", flush=True)
         num_tokens += 1
 
     end = time.time()
-    print(f"\nTokens per second:{num_tokens / (end - start)} {end-start}s", file=sys.stderr)
+    print(f"\nTokens per second:{num_tokens / (end - start)} {end-start}s, {num_tokens} tokens", file=sys.stderr)
 if False:
     results = generator.generate_batch([prompt_tokens], max_length=700, sampling_topk=10)
 
