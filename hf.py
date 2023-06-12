@@ -1,15 +1,14 @@
-import transformers
-import sys
-from pathlib import Path
-
 """
 limiting threads:
-import os
-import tensorflow as tf
-tf.config.threading.set_inter_op_parallelism_threads(1)
-tf.config.threading.set_intra_op_parallelism_threads(1)
-os.environ["OMP_NUM_THREADS"] = "1"
 """
+import torch
+num_threads = 4
+torch.set_num_threads(num_threads)
+
+import transformers
+import sys
+
+
 name = 'mosaicml/mpt-7b-storywriter'
 
 config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True)

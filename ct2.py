@@ -13,10 +13,10 @@ https://huggingface.co/mosaicml/mpt-7b-storywriter/discussions/29
 
 cpu_interthreads = 16
 cpu_intrathreads = 4
-generator = ctranslate2.Generator("mosaicml_mpt-7b-storywriter.ct2", device="cpu", inter_threads=cpu_interthreads, intra_threads=cpu_intrathreads)
+# generator = ctranslate2.Generator("mosaicml_mpt-7b-storywriter.ct2", device="cpu", inter_threads=cpu_interthreads, intra_threads=cpu_intrathreads)
 # generator = ctranslate2.Generator("mpt-7b-instruct.ct2.int8", device="cpu", inter_threads=16, intra_threads=4)
 # generator = ctranslate2.Generator("mpt-7b-storywriter-ct2.fp8", device="cuda")
-# generator = ctranslate2.Generator("mpt-7b-instruct.ct2.int8", device="cuda")
+generator = ctranslate2.Generator("mpt-7b-instruct.ct2.int8", device="cuda")
 
 tokenizer = transformers.AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
