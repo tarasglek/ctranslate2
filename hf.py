@@ -1,6 +1,8 @@
 """
 limiting threads:
 """
+import sys
+from threading import Thread
 import torch
 use_cpu = False
 # if use_cpu:
@@ -10,14 +12,9 @@ torch.set_num_threads(num_threads)
 devicedevice = torch.device("cuda")
 # devicedevice = torch.device("cpu")
 
-from transformers import BitsAndBytesConfig
+from transformers import AutoTokenizer, BitsAndBytesConfig, TextIteratorStreamer  # noqa: E402
+import transformers  # noqa: E402
 
-import transformers
-import sys
-
-
-
-from transformers import AutoTokenizer
 device_map = {
         "transformer.word_embeddings": 0,
             "transformer.word_embeddings_layernorm": 0,
@@ -49,10 +46,17 @@ model = transformers.AutoModelForCausalLM.from_pretrained(
   quantization_config=quantization_config
 )
 print(f"Memory footprint of {name}: {model.get_memory_footprint()}")
+# copied from llama
+prompt_tokens = prompt_tokens.to(model.device)
 
 
-# generate text until the output length (which includes the context length) reaches 50
-greedy_output = model.generate(**prompt_tokens, max_length=prompt_token_count+61)
+streamer = TextIteratorStreamer(tokenizer)
+generation_kwargs = dict(**prompt_tokens, streamer=streamer, max_new_tokens=prompt_token_count + 61)  # noqa: E501
+# model.generate(**generation_kwargs)
+thread = Thread(target=model.generate, kwargs=generation_kwargs)
+thread.start()
+generated_text = ""
+for new_text in streamer:
+ generated_text += new_text
+ print(new_text, end ="", flush=True)
 
-print("Output:\n" + 100 * '-')
-print(tokenizer.decode(greedy_output[0], skip_special_tokens=True))
