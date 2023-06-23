@@ -5,13 +5,13 @@ from transformers import AutoTokenizer, BitsAndBytesConfig, TextIteratorStreamer
 import transformers
 import os
 
-num_threads = 4
-torch.set_num_threads(num_threads)
-os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1000"
-device = torch.device("cuda")
+# num_threads = 4
+# torch.set_num_threads(num_threads)
+# os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1000"
+# device = torch.device("cpu")
+USE_GPU=False
 
-
-nf4_config = BitsAndBytesConfig(load_in_4bit=True)
+nf4_config = BitsAndBytesConfig(load_in_4bit=USE_GPU)
 tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
 prompt = sys.stdin.read()
@@ -32,10 +32,11 @@ model = transformers.AutoModelForCausalLM.from_pretrained(
     name,
     config=config,
     trust_remote_code=True,
-    device_map="auto",
-    quantization_config=nf4_config
-)
+    device_map="auto" if USE_GPU else "cpu",
+    quantization_config=nf4_config,
 
+)
+# model = model.to("cpu")
 prompt_tokens = prompt_tokens.to(model.device)
 streamer = TextIteratorStreamer(tokenizer)
 generation_kwargs = dict(
