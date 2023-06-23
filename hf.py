@@ -23,7 +23,13 @@ device_map = {
                         "transformer.ln_f": 0,
                         }
 
-quantization_config = BitsAndBytesConfig(llm_int8_enable_fp32_cpu_offload=True)
+nf4_config = BitsAndBytesConfig(
+  # llm_int8_enable_fp32_cpu_offload=True
+   load_in_4bit=True,
+  #  bnb_4bit_quant_type="nf4",
+  #  bnb_4bit_use_double_quant=True,
+  #  bnb_4bit_compute_dtype=torch.bfloat16
+)
 tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 prompt = sys.stdin.read()
 # prompt_tokens = tokenizer.convert_ids_to_tokens(tokenizer.encode(prompt))
@@ -31,19 +37,18 @@ prompt_tokens = tokenizer([prompt], return_tensors="pt")
 prompt_token_count = prompt_tokens.input_ids.shape[1]
 print(f"Input token count: {prompt_token_count}")
 
-name = 'mosaicml/mpt-7b-instruct'
+# name = 'mosaicml/mpt-7b-instruct'
 # name = 'ehartford/WizardLM-30B-Uncensored'
-# name = 'emozilla/mpt-7b-storywriter-fast'
-config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True, load_in_8bit=True)
+name = 'emozilla/mpt-7b-storywriter-fast'
+config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True, quantization_config=nf4_config)
 config.max_seq_len = 83968 # (input + output) tokens can now be up to 83968
 
 model = transformers.AutoModelForCausalLM.from_pretrained(
   name,
   config=config,
   trust_remote_code=True,
-  load_in_8bit=True,
   device_map="auto",
-  quantization_config=quantization_config
+  quantization_config=nf4_config
 )
 print(f"Memory footprint of {name}: {model.get_memory_footprint()}")
 # copied from llama
