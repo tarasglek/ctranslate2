@@ -3,10 +3,13 @@ from threading import Thread
 import torch
 from transformers import AutoTokenizer, BitsAndBytesConfig, TextIteratorStreamer
 import transformers
+import os
 
 num_threads = 4
 torch.set_num_threads(num_threads)
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:1000"
 device = torch.device("cuda")
+
 
 nf4_config = BitsAndBytesConfig(load_in_4bit=True)
 tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")

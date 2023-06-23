@@ -1,0 +1,8 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request
+
+### Instruction: sqlalchemy sqlite conversation_table(conversation_id not null uuid, msg_id primary_key, msg_text not null,repy_to_msg_id)
+
+python code that takes operational conversation_id cmdline param..does while(True) loop that reads user input and adds entries to db
+
+### Response:
+

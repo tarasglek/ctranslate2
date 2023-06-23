@@ -1,0 +1,28 @@
+Below is an instruction that describes a task. Write a response that appropriately completes the request
+
+### Instruction: ```
+def create_conversation_table(db_url, input_table_name, output_table_name, id_col_name="conversation_id",
+                              msg_id_col_name="msg_id", msg_text_col_name="msg_text",
+                              reply_to_msg_id_col_name="reply_to_msg_id",
+                              from_col_name="from", default_from="human"):
+    class Conversation(Base):
+        __tablename__ = table_name
+        conversation_id = Column(String, nullable=False,
+                                default=str(uuid.uuid4()), name=id_col_name)
+        msg_id = Column(Integer, primary_key=True, name=msg_id_col_name)
+        msg_text = Column(String, nullable=False, name=msg_text_col_name)
+        from_ = Column(String, nullable=False, default=default_from, name=from_col_name)
+        reply_to_msg_id = Column(Integer, ForeignKey(f'{table_name}.{msg_id_col_name}'),
+                                 name=reply_to_msg_id_col_name)
+
+    engine = create_engine(db_url)
+    Base.metadata.create_all(engine)
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    return session, Conversation
+```
+i split table_name into 2 params in create_conversation_table. Finished updating code to create Input and Output Conversation tables based on the 2 names... share as much code as possible and make the output as concise as possible
+### Response:
+
