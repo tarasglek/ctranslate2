@@ -1,67 +1,48 @@
-"""
-limiting threads:
-"""
 import sys
 from threading import Thread
 import torch
-use_cpu = False
-# if use_cpu:
+from transformers import AutoTokenizer, BitsAndBytesConfig, TextIteratorStreamer
+import transformers
+
 num_threads = 4
 torch.set_num_threads(num_threads)
-# else:
-devicedevice = torch.device("cuda")
-# devicedevice = torch.device("cpu")
+device = torch.device("cuda")
 
-from transformers import AutoTokenizer, BitsAndBytesConfig, TextIteratorStreamer  # noqa: E402
-import transformers  # noqa: E402
-
-device_map = {
-        "transformer.word_embeddings": 0,
-            "transformer.word_embeddings_layernorm": 0,
-                "lm_head": "cpu",
-                    "transformer.h": 0,
-                        "transformer.ln_f": 0,
-                        }
-
-nf4_config = BitsAndBytesConfig(
-  # llm_int8_enable_fp32_cpu_offload=True
-   load_in_4bit=True,
-  #  bnb_4bit_quant_type="nf4",
-  #  bnb_4bit_use_double_quant=True,
-  #  bnb_4bit_compute_dtype=torch.bfloat16
-)
+nf4_config = BitsAndBytesConfig(load_in_4bit=True)
 tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
+
 prompt = sys.stdin.read()
-# prompt_tokens = tokenizer.convert_ids_to_tokens(tokenizer.encode(prompt))
 prompt_tokens = tokenizer([prompt], return_tensors="pt")
 prompt_token_count = prompt_tokens.input_ids.shape[1]
-print(f"Input token count: {prompt_token_count}")
 
-# name = 'mosaicml/mpt-7b-instruct'
-# name = 'ehartford/WizardLM-30B-Uncensored'
-name = 'emozilla/mpt-7b-storywriter-fast'
-config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True, quantization_config=nf4_config)
-config.max_seq_len = 83968 # (input + output) tokens can now be up to 83968
+name = [
+    'emozilla/mpt-7b-storywriter-fast',
+    'mosaicml/mpt-7b-instruct',
+    'ehartford/WizardLM-30B-Uncensored'
+][0]
+config = transformers.AutoConfig.from_pretrained(
+    name, trust_remote_code=True, quantization_config=nf4_config
+)
+config.max_seq_len = 83968
 
 model = transformers.AutoModelForCausalLM.from_pretrained(
-  name,
-  config=config,
-  trust_remote_code=True,
-  device_map="auto",
-  quantization_config=nf4_config
+    name,
+    config=config,
+    trust_remote_code=True,
+    device_map="auto",
+    quantization_config=nf4_config
 )
-print(f"Memory footprint of {name}: {model.get_memory_footprint()}")
-# copied from llama
+
 prompt_tokens = prompt_tokens.to(model.device)
-
-
 streamer = TextIteratorStreamer(tokenizer)
-generation_kwargs = dict(**prompt_tokens, streamer=streamer, max_new_tokens=prompt_token_count + 61)  # noqa: E501
-# model.generate(**generation_kwargs)
+generation_kwargs = dict(
+    **prompt_tokens, streamer=streamer, max_new_tokens=prompt_token_count + 61
+)
+
 thread = Thread(target=model.generate, kwargs=generation_kwargs)
 thread.start()
 generated_text = ""
-for new_text in streamer:
- generated_text += new_text
- print(new_text, end ="", flush=True)
 
+for new_text in streamer:
+    generated_text += new_text
+    print(new_text, end="", flush=True)
