@@ -2,7 +2,7 @@
 <img width="785" alt="image" src="https://github.com/tarasglek/ctranslate2/assets/857083/032c12fa-dc1f-4ec6-bf00-b30394f1034a">
 
 ```
-pip install -qU ctranslate2 transformers[torch] accelerate einops accelerate bitsandbytes importlib_metadata scipy
+pip install -qU ctranslate2 transformers[torch] accelerate einops accelerate bitsandbytes scipy
 # for huggingface 8bit scipy
 pip install 
 git clone https://huggingface.co/mosaicml/mpt-7b-instruct
