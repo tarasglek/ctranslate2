@@ -12,18 +12,20 @@ import os
 USE_GPU=True
 
 nf4_config = BitsAndBytesConfig(load_in_4bit=USE_GPU)
-tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-neox-20b")
 
 prompt = sys.stdin.read()
-prompt_tokens = tokenizer([prompt], return_tensors="pt")
-prompt_token_count = prompt_tokens.input_ids.shape[1]
 
 name = [
+    'WizardLM/WizardCoder-15B-V1.0',
     'emozilla/mpt-7b-storywriter-fast',
     'mosaicml/mpt-7b-instruct',
     'ehartford/WizardLM-30B-Uncensored',
     'ai-forever/ruGPT-3.5-13B',
-][1]
+][0]
+
+tokenizer = AutoTokenizer.from_pretrained(name)
+prompt_tokens = tokenizer([prompt], return_tensors="pt")
+prompt_token_count = prompt_tokens.input_ids.shape[1]
 
 model = transformers.AutoModelForCausalLM.from_pretrained(
     name,
