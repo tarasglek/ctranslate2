@@ -3,6 +3,7 @@ from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
 import argparse
 from threading import Thread
 import sys
+import time
 
 model_name_or_path = "TheBloke/WizardCoder-15B-1.0-GPTQ"
 # Or to load it locally, pass the local download path
@@ -39,16 +40,27 @@ prompt_tokens = prompt_tokens.to("cuda")
 prompt_token_count = prompt_tokens.input_ids.shape[1]
 # prompt_tokens.input_ids.to('cuda')
 
+token_limit = 2048
 
 streamer = TextIteratorStreamer(tokenizer)
 generation_kwargs = dict(
-    **prompt_tokens, streamer=streamer, max_new_tokens=prompt_token_count + 100
+    **prompt_tokens, streamer=streamer, max_new_tokens=token_limit - prompt_token_count
 )
 
+start_time = time.time()
+first_response_time = None
+response_token_count = 0
 thread = Thread(target=model.generate, kwargs=generation_kwargs)
 thread.start()
 generated_text = ""
 
 for new_text in streamer:
+    if first_response_time is None:
+        first_response_time = time.time()
     generated_text += new_text
+    response_token_count = response_token_count + 1
     print(new_text, end="", flush=True)
+
+end_time = time.time()
+print(f"\nPrompt: {prompt_token_count / (first_response_time - start_time)}tokens/second {first_response_time-start_time}s, {prompt_token_count} tokens", file=sys.stderr)
+print(f"Response: {response_token_count / (end_time - first_response_time)}tokens/second  {end_time - first_response_time}s, {response_token_count} tokens", file=sys.stderr)
