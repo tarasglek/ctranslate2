@@ -93,6 +93,6 @@ export type EventReference = {
 };
 ```
 
-### Instruction: Fix my car tommorrow
+### Instruction: Fix my car tommorrow at 6am, should take all day
 
 ### Response:
