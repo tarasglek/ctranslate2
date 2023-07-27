@@ -1,3 +1,6 @@
+import time
+load_time = time.time()
+import measure
 import sys
 from threading import Thread
 import torch
@@ -16,9 +19,10 @@ nf4_config = BitsAndBytesConfig(load_in_4bit=USE_GPU)
 prompt = sys.stdin.read()
 
 name = [
+    "cerebras/btlm-3b-8k-base",
+    'mosaicml/mpt-7b-instruct',
     'WizardLM/WizardCoder-15B-V1.0',
     'emozilla/mpt-7b-storywriter-fast',
-    'mosaicml/mpt-7b-instruct',
     'ehartford/WizardLM-30B-Uncensored',
     'ai-forever/ruGPT-3.5-13B',
 ][0]
@@ -35,16 +39,33 @@ model = transformers.AutoModelForCausalLM.from_pretrained(
     quantization_config=nf4_config,
 )
 
-# model = model.to(device)
 streamer = TextIteratorStreamer(tokenizer)
 generation_kwargs = dict(
-    **prompt_tokens, streamer=streamer, max_new_tokens=prompt_token_count + 100
+    **prompt_tokens, streamer=streamer, max_new_tokens=prompt_token_count + 100,
+    num_beams=1,
+    # max_new_tokens=50,
+    early_stopping=True,
+    no_repeat_ngram_size=2
 )
+
+start_time = time.time()
+first_response_time = None
+response_token_count = 0
 
 thread = Thread(target=model.generate, kwargs=generation_kwargs)
 thread.start()
 generated_text = ""
 
 for new_text in streamer:
+    if first_response_time is None:
+        first_response_time = time.time()
+    response_token_count = response_token_count + 1
     generated_text += new_text
     print(new_text, end="", flush=True)
+
+end_time = time.time()
+
+print(f"\nPrompt: {measure.stats(start_time, first_response_time, prompt_token_count)}", file=sys.stderr)
+print(f"Response: {measure.stats(first_response_time, end_time, response_token_count)}", file=sys.stderr)
+print(f"Overall: {measure.stats(load_time, end_time, prompt_token_count+response_token_count)}", file=sys.stderr)
+print(f"Overall-ResponseTokens: {measure.stats(load_time, end_time, response_token_count)}", file=sys.stderr)

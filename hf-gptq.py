@@ -1,9 +1,11 @@
+import time
+load_time = time.time()
 from transformers import AutoTokenizer, pipeline, logging, TextIteratorStreamer
 from auto_gptq import AutoGPTQForCausalLM, BaseQuantizeConfig
 import argparse
 from threading import Thread
 import sys
-import time
+import measure
 
 model_name_or_path = "TheBloke/WizardCoder-15B-1.0-GPTQ"
 # Or to load it locally, pass the local download path
@@ -62,5 +64,7 @@ for new_text in streamer:
     print(new_text, end="", flush=True)
 
 end_time = time.time()
-print(f"\nPrompt: {prompt_token_count / (first_response_time - start_time)}tokens/second {first_response_time-start_time}s, {prompt_token_count} tokens", file=sys.stderr)
-print(f"Response: {response_token_count / (end_time - first_response_time)}tokens/second  {end_time - first_response_time}s, {response_token_count} tokens", file=sys.stderr)
+
+print(f"\nPrompt: {measure.stats(start_time, first_response_time, prompt_token_count)}", file=sys.stderr)
+print(f"Response: {measure.stats(first_response_time, end_time, response_token_count)}", file=sys.stderr)
+print(f"Overall: {measure.stats(load_time, end_time, prompt_token_count+response_token_count)}", file=sys.stderr)
