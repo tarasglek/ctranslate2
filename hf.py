@@ -41,11 +41,11 @@ model = transformers.AutoModelForCausalLM.from_pretrained(
 
 streamer = TextIteratorStreamer(tokenizer)
 generation_kwargs = dict(
-    **prompt_tokens, streamer=streamer, max_new_tokens=prompt_token_count + 100,
-    num_beams=1,
+    **prompt_tokens, streamer=streamer, max_new_tokens=8000 - prompt_token_count,
+    # num_beams=1,
     # max_new_tokens=50,
-    early_stopping=True,
-    no_repeat_ngram_size=2
+    # early_stopping=True,
+    # no_repeat_ngram_size=2
 )
 
 start_time = time.time()
